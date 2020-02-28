@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, minimum-scale=0.1">
+	<title>separator</title>
+</head>
+<body style="margin: 0px; background: #0e0e0e;">
+<div id="react_container"></div>
+<script src="https://cdn.bootcss.com/react/16.12.0/umd/react.development.js"></script>
+<script src="https://cdn.bootcss.com/react-dom/16.12.0/umd/react-dom.development.js"></script>
+<script type="text/javascript">
+	'use strict';
+
+	const e = React.createElement;
+
+	class ImageDisplay extends React.Component {
+		constructor(props) {
+			super(props);
+			this.state = {
+				name: '',
+				syscode: 0
+			};
+			this.loadPicture();
+		}
+		loadPicture() {
+			fetch('/name')
+			.then(res => res.json())
+			.then(json => {
+				this.setState(json);
+			});
+		}
+		keyPress = (event) => {
+			var keyName = '';
+			if (event.keyCode === 32) {
+				keyName = 'space'
+			}
+			if (event.keyCode === 74) {
+				keyName = 'j'
+			}
+			if (event.keyCode === 75) {
+				keyName = 'k'
+			}
+			if (keyName == '') {
+				return;
+			}
+			fetch('/mv', {
+				method: 'POST',
+				body: JSON.stringify({
+					name: this.state.name,
+					dst: keyName
+				}),
+				headers: new Headers({
+					'Content-Type': 'application/json'
+				})
+			})
+			.then(res => res.json())
+			.then(json => {
+				if (json['status'] != 200) {
+					this.setState({ syscode: 1 });
+				}
+			});
+			this.loadPicture();
+		}
+		componentDidMount() {
+			window.addEventListener('keydown', this.keyPress);
+		}
+		componentWillUnmount() {
+			window.removeEventListener('keydown', this.keyPress);
+		}
+		render() {
+			if (this.state.name == '') {
+				return 'finished';
+			}
+			if (this.state.syscode == 1) {
+				return 'error';
+			}
+			return e(
+				'img',
+				{
+					style: {
+						'margin': 'auto',
+						'width': 1280
+					},
+					src: '/origin/' + this.state.name
+				}
+			);
+		}
+	}
+
+	const domContainer = document.querySelector('#react_container');
+	ReactDOM.render(e(ImageDisplay), domContainer);
+</script>
+</body>
+</html>

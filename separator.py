@@ -32,11 +32,12 @@ def origin(image_name):
     return send_from_directory('origin/', image_name)
 
 
-@app.route('/mv')
+@app.route('/mv', methods=['POST'])
 def mv():
+    json = request.get_json()
     shutil.move(
-        os.path.join('origin/', request.form['name']),
-        os.path.join(request.form['dst'], request.form['name'])
+        os.path.join('origin/', json['name']),
+        os.path.join(json['dst'], json['name'])
     )
     return {
         'status': 200
