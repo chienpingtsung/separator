@@ -5,6 +5,7 @@
 
 ## structure
 
+```
  .
  ├── LICENSE
  ├── README.md
@@ -16,6 +17,7 @@
  ├── separator.py
  └── static
      └── index.html
+```
 
 ## dependencies
 
