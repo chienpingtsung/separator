@@ -30,7 +30,7 @@
 2. Install `Python` and `Flask`.
 3. Open a terminal and input commands below.
 ```bash
-$ export FLASK_APP=hello.py
+$ export FLASK_APP=separator.py
 $ flask run
 ```
 4. Open browser with `http://127.0.0.1:5000/`
