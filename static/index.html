@@ -4,7 +4,7 @@
 	<meta name="viewport" content="width=device-width, minimum-scale=0.1">
 	<title>separator</title>
 </head>
-<body style="margin: 0px; background: #0e0e0e;">
+<body style="margin: 0px; background: #9e9e9e;">
 <div id="react_container"></div>
 <script src="https://cdn.bootcss.com/react/16.12.0/umd/react.development.js"></script>
 <script src="https://cdn.bootcss.com/react-dom/16.12.0/umd/react-dom.development.js"></script>
@@ -18,7 +18,7 @@
 			super(props);
 			this.state = {
 				name: '',
-				syscode: 0
+				error: false
 			};
 			this.loadPicture();
 		}
@@ -34,32 +34,40 @@
 			if (event.keyCode === 32) {
 				keyName = 'space'
 			}
-			if (event.keyCode === 74) {
-				keyName = 'j'
+			if (event.keyCode >= 48 && event.keyCode <= 57) {
+				keyName = (event.keyCode - 48) + ''
 			}
-			if (event.keyCode === 75) {
-				keyName = 'k'
+			if (event.keyCode >= 96 && event.keyCode <=105) {
+				keyName = (event.keyCode - 96) + ''
+			}
+			if (event.keyCode === 8) {
+				keyName = 'undo'
 			}
 			if (keyName == '') {
 				return;
 			}
-			fetch('/mv', {
-				method: 'POST',
-				body: JSON.stringify({
-					name: this.state.name,
-					dst: keyName
-				}),
-				headers: new Headers({
-					'Content-Type': 'application/json'
+			if (this.state.name || keyName == 'undo') {
+				fetch('/mv', {
+					method: 'POST',
+					body: JSON.stringify({
+						name: this.state.name,
+						dst: keyName
+					}),
+					headers: new Headers({
+						'Content-Type': 'application/json'
+					})
 				})
-			})
-			.then(res => res.json())
-			.then(json => {
-				if (json['status'] != 200) {
-					this.setState({ syscode: 1 });
-				}
-			});
-			this.loadPicture();
+				.then(res => res.json())
+				.then(json => {
+					if (json['status'] == 403) {
+						alert('这是第一张图片');
+					}
+					if (json['status'] == 404) {
+						this.setState({ error: true });
+					}
+					this.loadPicture();
+				});
+			}
 		}
 		componentDidMount() {
 			window.addEventListener('keydown', this.keyPress);
@@ -71,7 +79,7 @@
 			if (this.state.name == '') {
 				return 'finished';
 			}
-			if (this.state.syscode == 1) {
+			if (this.state.error) {
 				return 'error';
 			}
 			return e(
